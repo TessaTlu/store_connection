@@ -338,20 +338,43 @@ class store_connection:
         print("Сколько вещей вы собираетесь приобрести?")
         count = int(input())
         for i in range(count):
-            print("Введите название продукта: ")
+            print("Введите имя продукта: ")
             product_name = "'"
             product_name = product_name + input()
             product_name = product_name + "'"
             self.cur.execute("select id_product from _product where name = "+product_name)
             product_id = self.cur.fetchone()
-            self.cur.execute("insert into _order_row (id_order, id_product) values (%s, %s)", (order_id[0], product_id[0]))      
+            self.cur.execute("insert into _order_row (id_order, id_product) values (%s, %s)", (order_id[0], product_id[0]))
+        self.cur.execute("select id_product from _order_row order by id_order desc limit %s", (count,))  
+        products = self.cur.fetchmany(count)
+        word = ""
+        if(count > 1 and count < 5):
+            word = "продукта "
+        else: 
+            word = "продуктов "
+        if(count == 1):
+            print("Следующий продукт был добавлен в корзину")
+        else:
+            print("Следющие", count, word+ "были добавлены в корзину")
+        for i in range(count):
+            print(products[i][0])
         self.con.commit()
         
-     
+    
 A = store_connection()
-A.user_random_rows(5)
-print("______________________")
+
+#A.remove_all_product()
+#A.remove_all_users()
+
+#A.insert_into_product()
+#A.insert_into_user()
+
 A.product_random_rows(5)
+print("______________________")
+A.user_random_rows(5)
+
+
 A.make_order()
-#A.con.commit()
+
+
 A.diconnect()
